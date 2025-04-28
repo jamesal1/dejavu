@@ -33,10 +33,10 @@ class Dejavu:
         self.config = config
 
         # initialize db
-        db_cls = get_database(config.get("database_type", "mysql").lower())
+        # db_cls = get_database(config.get("database_type", "mysql").lower())
 
-        self.db = db_cls(**config.get("database", {}))
-        self.db.setup()
+        # self.db = db_cls(**config.get("database", {}))
+        # self.db.setup()
 
         # if we should limit seconds fingerprinted,
         # None|-1 means use entire track
@@ -51,6 +51,7 @@ class Dejavu:
         whether or not an audio file was already processed.
         """
         # get songs previously indexed
+        return
         self.songs = self.db.get_songs()
         self.songhashes_set = set()  # to know which ones we've computed before
         for song in self.songs:
@@ -167,13 +168,10 @@ class Dejavu:
         song_name_from_path = decoder.get_audio_name_from_path(file_path)
         song_hash = decoder.unique_hash(file_path)
         song_name = song_name or song_name_from_path
-        # don't refingerprint already fingerprinted files
-        if song_hash in self.songhashes_set:
-            print(f"{song_name} already fingerprinted, continuing...")
-        else:
-            song_name, hashes, file_hash = Dejavu._fingerprint_worker(
-                (file_path, self.limit)
-            )
+
+        song_name, hashes, file_hash = Dejavu._fingerprint_worker(
+            (file_path, self.limit)
+        )
         return hashes
 
     def generate_fingerprints(
@@ -293,7 +291,7 @@ class Dejavu:
         song_name, extension = os.path.splitext(os.path.basename(file_name))
 
         fingerprints, file_hash = Dejavu.get_file_fingerprints(
-            file_name, limit, print_output=True
+            file_name, limit, print_output=False
         )
 
         return song_name, fingerprints, file_hash
